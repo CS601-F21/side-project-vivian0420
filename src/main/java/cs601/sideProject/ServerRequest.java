@@ -47,4 +47,8 @@ public class ServerRequest {
     public String getRequestMethod() {
         return this.requestMethod;
     }
+
+    public Map<String, String> getHeaders(){
+        return this.headers;
+    }
 }

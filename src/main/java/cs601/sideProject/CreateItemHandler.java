@@ -20,8 +20,7 @@ public class CreateItemHandler implements Handler{
         int qty = new Gson().fromJson(request.getContent(), JsonObject.class).get("quantity").getAsInt();
         String comment = new Gson().fromJson(request.getContent(),JsonObject.class).get("comment").getAsString();
 
-        try{
-            Connection con = getConnection();
+        try(Connection con = getConnection();){
 
             PreparedStatement query = con.prepareStatement("select categoryID from category where categoryName = ?");
             query.setString(1,category);

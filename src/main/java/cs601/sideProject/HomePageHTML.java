@@ -2,8 +2,9 @@ package cs601.sideProject;
 
 public class HomePageHTML {
 
-    public String getHomePageHTML() {
-        return """
+    public String getHomePageHTML(String user) {
+        return String.format("""
+                
                 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
                        <html xmlns="http://www.w3.org/1999/xhtml">
                          <html>
@@ -58,8 +59,8 @@ public class HomePageHTML {
                                 padding-top: 100px; /* Location of the box */
                                 left: 0;
                                 top: 0;
-                                width: 100%; /* Full width */
-                                height: 100%; /* Full height */
+                                width: 100%%; /* Full width */
+                                height: 100%%; /* Full height */
                                 overflow: auto; /* Enable scroll if needed */
                                 background-color: rgb(0,0,0); /* Fallback color */
                                 background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
@@ -71,7 +72,7 @@ public class HomePageHTML {
                                 margin: auto;
                                 padding: 20px;
                                 border: 1px solid #888;
-                                width: 60%;
+                                width: 60%%;
                               }
                               
                               /* The Close Button */
@@ -89,8 +90,8 @@ public class HomePageHTML {
                                 cursor: pointer;
                               }
                              
-                             #username,#itemname,#price, #quantity, #comment,#categoery, #brand{
-                               width: 100%;
+                             #itemname,#price, #quantity, #comment,#categoery, #brand{
+                               width: 100%%;
                                padding: 12px 20px;
                                margin: 8px 0;
                                display: inline-block;
@@ -108,24 +109,20 @@ public class HomePageHTML {
                                padding: 14px 20px;
                              }
                              
-                             input[type=password]{
-                               width: 100%;
-                               padding: 12px 20px;
-                               margin: 8px 0;
-                               display: inline-block;
-                               border: 1px solid #ccc;
-                               box-sizing: border-box;
+                             .welcome {
+                               font-size: 40px;
+                               font-weight: bold;
+                               vertical-align: middle;
                              }
+                             
+                             .name {
+                               font-size: 20px;
+                               color: #00CED1;
+                               vertical-align: middle;
+                               
+                             }
+                             
                                          
-                             #login {
-                               background-color: #04AA6D;
-                               color: white;
-                               padding: 14px 20px;
-                               margin: 8px 0;
-                               border: none;
-                               cursor: pointer;
-                               width: 100%;
-                             }
                              
                              .column {
                                float: left;
@@ -134,7 +131,7 @@ public class HomePageHTML {
                              }
                              
                              .column.side {
-                               width: 25%;
+                               width: 25%%;
                                border: 2px solid grey;
                                margin-top: 10px;
                                margin-bottom: 10px;
@@ -142,7 +139,7 @@ public class HomePageHTML {
                              }
                                          
                              .column.middle {
-                               width: 45%;
+                               width: 45%%;
                                border: 2px solid grey;
                                margin-top: 10px;
                                margin-bottom: 10px;
@@ -157,7 +154,7 @@ public class HomePageHTML {
                                          
                              @media screen and (max-width: 600px) {
                                .column.side, .column.middle {
-                                 width: 100%;
+                                 width: 100%%;
                                }
                                
                              }
@@ -171,12 +168,9 @@ public class HomePageHTML {
                              </head>
                                 
                        <body>
-                                
-                                
                         <div class="header">
                           <img src="https://user-images.githubusercontent.com/86545567/138036293-5b8071bc-2f94-4785-bece-d65b244450c8.JPG" alt="Flowers in Chania" width="200" height="200">
                           <h1 style="font-size:80px;">Inventory Management</h1>
-                          
                         </div>
                         
                         <div class="topnav">
@@ -199,7 +193,7 @@ public class HomePageHTML {
                                <label for="brand"><b>Brand</b></label>
                                <input id="brand" type="text" placeholder="Enter Brand" name="brand" required>
                                
-                                <label for="cars"><b>Category</b></label>
+                                <label for="category"><b>Category</b></label>
                                 <select name="category" id="categoery">
                                   <option value="select">---Please select---</option>
                                   <option value="handbag">Handbag</option>
@@ -228,6 +222,7 @@ public class HomePageHTML {
                         </div>
                                    
                         <script>
+                           
                            // Get the modal
                            var modal = document.getElementById("myModal");
                            
@@ -287,18 +282,13 @@ public class HomePageHTML {
                                   
                           <div class="row">
                             <div class="column side">
-                              <h2>Login</h2>
+                              <p class="welcome"> *Welcome back* </p>
+                              <p class="name"> %s </p> 
+                               <button id="logout">Logout</button>
+                              
+                              
                               <div class="container">
-                              <label for="uname"><b>Username</b></label>
-                              <input id="username" type="text" placeholder="Enter Username" name="uname" required>
                               
-                              
-                              <label for="psw"><b>Password</b></label>
-                              <input id="password" type="password" placeholder="Enter Password" name="psw" required>
-                              <button id="login" type="submit">Login</button>
-                              <label>
-                                  <input type="checkbox" checked="checked" name="remember"> Remember me
-                              </label>
                               </div>    
                           </div>
                           
@@ -318,7 +308,7 @@ public class HomePageHTML {
                         </body>
                         </html>
                        </html>
-                       """;
+                       """, user);
 
     }
 }
