@@ -38,8 +38,7 @@ public class LoginHandler implements Handler{
                     response.setCode(302);
                     response.response("<html>302 Found</html>");
 
-//                    String content = new HomePageHTML().getHomePageHTML(userName);
-//                    response.response(content);
+
                 } else {
                     String content = new LoginPageHTML().getLoginPageHTML();
                     response.response(content + "\n" + "<p> Invalid userName and/or password.</p>");

@@ -7,6 +7,7 @@ public class Application {
         server.setMapping("/home", new HomeHandler());
         server.setMapping("/login", new LoginHandler());
         server.setMapping("/CreateItemHandler", new CreateItemHandler());
+        server.setMapping("/update", new UpdateHandler());
         server.startup();
 
 

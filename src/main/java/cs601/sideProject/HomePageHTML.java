@@ -2,7 +2,7 @@ package cs601.sideProject;
 
 public class HomePageHTML {
 
-    public String getHomePageHTML(String user) {
+    public String getHomePageHTML(String user, String columnContent, String table) {
         return String.format("""
                 
                 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -16,6 +16,10 @@ public class HomePageHTML {
                              <style>
                              body {
                                margin: 20;
+                             }
+                             
+                             table {
+                               white-space: nowrap;
                              }
                              
                              * {
@@ -144,6 +148,7 @@ public class HomePageHTML {
                                margin-top: 10px;
                                margin-bottom: 10px;
                                height: 400px;
+                               overflow: scroll;
                              }
                              
                              .row:after {
@@ -180,6 +185,7 @@ public class HomePageHTML {
                          </form>
                          
                             <button id="newitem">Add New Item</button>
+                            <button onclick="location.href = 'http://localhost:1024/home';" id="myButton" class="float-left submit-button" >Home</button>
                                 
                              <!-- The Modal -->
                              <div id="myModal" class="modal">
@@ -222,6 +228,8 @@ public class HomePageHTML {
                         </div>
                                    
                         <script>
+                        
+                            
                            
                            // Get the modal
                            var modal = document.getElementById("myModal");
@@ -276,6 +284,13 @@ public class HomePageHTML {
                                modal.style.display = "none";
                              }
                            }
+                           
+                           function form_update() {
+                             $("#formAction").val('UPDATE');
+                           }
+                           function form_delete() {
+                             $("#formAction").val('DELETE');
+                           }
                         </script>
                            
                         </div>
@@ -293,8 +308,8 @@ public class HomePageHTML {
                           </div>
                           
                           <div class="column middle">
-                              <h2>Current Inventory</h2>
-                              <p> here will be a form</p>
+                              <h2>%s</h2>
+                              <p> %s</p>
                           </div>
                           
                           <div class="column side">
@@ -308,7 +323,7 @@ public class HomePageHTML {
                         </body>
                         </html>
                        </html>
-                       """, user);
+                       """, user, columnContent,table);
 
     }
 }
