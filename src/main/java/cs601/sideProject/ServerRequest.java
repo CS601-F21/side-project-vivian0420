@@ -31,7 +31,11 @@ public class ServerRequest {
                     this.path = requestLineParts[1].split("\\?")[0];
                     String[] queryItem = requestLineParts[1].split("\\?")[1].split("&");
                     for(String query: queryItem){
-                        queryParam.put(query.split("=")[0], query.split("=")[1]);
+                        if(query.split("=").length == 1) {
+                            continue;
+                        }else {
+                            queryParam.put(query.split("=")[0], query.split("=")[1]);
+                        }
                     }
                 }
                 else {

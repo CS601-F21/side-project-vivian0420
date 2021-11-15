@@ -179,9 +179,9 @@ public class HomePageHTML {
                         </div>
                         
                         <div class="topnav">
-                         <form>
+                         <form action="/home" method="POST" accept-charset="utf-8">
                             <input type="text" name="search" value=""/>
-                            <input type="submit" value="Search" />
+                            <button id='search' type='submit'>Search</button>
                          </form>
                          
                             <button id="newitem">Add New Item</button>
@@ -253,6 +253,7 @@ public class HomePageHTML {
                                    }),
                                    success: function(data) {
                                      alert('data: ' + data["test"]);
+                                     window.location.href = "http://localhost:1024/home";
                                      $("#itemname").val('');
                                      $("#brand").val('');
                                      $("#categoery").val('');
@@ -291,6 +292,7 @@ public class HomePageHTML {
                            function form_delete() {
                              $("#formAction").val('DELETE');
                            }
+                           
                         </script>
                            
                         </div>
@@ -300,15 +302,13 @@ public class HomePageHTML {
                               <p class="welcome"> *Welcome back* </p>
                               <p class="name"> %s </p> 
                                <button id="logout">Logout</button>
-                              
-                              
                               <div class="container">
                               
                               </div>    
                           </div>
                           
                           <div class="column middle">
-                              <h2>%s</h2>
+                              <h3>%s</h3>
                               <p> %s</p>
                           </div>
                           

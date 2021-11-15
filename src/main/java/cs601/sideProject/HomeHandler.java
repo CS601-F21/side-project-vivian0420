@@ -21,13 +21,14 @@ public class HomeHandler implements Handler {
             String sessionString = sessionS.split("=")[1];
             if (request.getRequestMethod().equals("GET")) {
                 try (Connection conn = getConnection()) {
-                    final PreparedStatement query = conn.prepareStatement("select u.username from User_sessions s, User u where s.user_id = u.userId and s.session=?");
+                    final PreparedStatement query = conn.prepareStatement("select u.username from User_sessions s, User u where s.user_id = u.userId and s.session=? ");
                     query.setString(1, sessionString);
                     ResultSet resultSet = query.executeQuery();
                     resultSet.next();
                     String userName = resultSet.getString("username");
 
-                    final PreparedStatement table = conn.prepareStatement("SELECT i.itemID, i.itemName, c.categoryName, i.brand, i.price, i.quantity, i.description FROM Item i, Category c WHERE i.categoryID=c.categoryID");
+                    final PreparedStatement table = conn.prepareStatement("SELECT i.itemID, i.itemName, c.categoryName," +
+                            " i.brand, i.price, i.quantity, i.description FROM Item i, Category c WHERE i.categoryID=c.categoryID ORDER BY i.itemID");
                     ResultSet tableResultSet = table.executeQuery();
                     String htmlTable = "<table border='1' cellspacing='0' cellpadding='0'>";
                     int count = 1;
@@ -51,40 +52,52 @@ public class HomeHandler implements Handler {
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 }
+            }
+            else if(request.getRequestMethod().equals("POST")){
+                try (Connection conn = getConnection()) {
+                    final PreparedStatement query = conn.prepareStatement("select u.username from User_sessions s, User u where s.user_id = u.userId and s.session=?");
+                    query.setString(1, sessionString);
+                    ResultSet resultSet = query.executeQuery();
+                    resultSet.next();
+                    String userName = resultSet.getString("username");
+
+                    String[] contentParts = request.getContent().split("=");
+                    if (contentParts.length == 1) {
+                        String content = new HomePageHTML().getHomePageHTML(userName, "Alert: Please enter for searching.","");
+                        response.response(content);
+                    }
+                    else {
+                        final PreparedStatement result = conn.prepareStatement("SELECT i.itemID, i.itemName, c.categoryName," +
+                                " i.brand, i.price, i.quantity, i.description FROM Item i, Category c WHERE i.categoryID = c.categoryID " +
+                                "AND (i.itemName LIKE ? OR c.categoryName LIKE ? OR i.brand LIKE ?)" );
+                        result.setString(1,"%" + contentParts[1] + "%");
+                        result.setString(2,"%" + contentParts[1] + "%");
+                        result.setString(3,"%" + contentParts[1] + "%");
+                        ResultSet SearchSet = result.executeQuery();
+                        String htmlTable = "<table border='1' cellspacing='0' cellpadding='0'>";
+                        int count = 1;
+                        htmlTable += "<tr bgcolor='#DCDCDC'><td>" + "N0." + "</td><td>" + "Name " + "</td><td>" + "Category " + "</td><td>" + "Brand " + "</td><td>" + "Price " + "</td><td>" + "Quantity " + "</td><td>" + "Comment " + "</td></tr>";
+                        while (SearchSet.next()) {
+                            htmlTable += "<tr>";
+                            htmlTable += "<td>" + count++ + "</td>";
+                            htmlTable += "<td>" + "<a href=\"/update?itemID=" + SearchSet.getInt("itemID") +
+                                    "\">" + SearchSet.getString("itemName") + "</a></td>";
+                            htmlTable += "<td>" + SearchSet.getString("categoryName") + "</td>";
+                            htmlTable += "<td>" + SearchSet.getString("brand") + "</td>";
+                            htmlTable += "<td>" + SearchSet.getDouble("price") + "</td>";
+                            htmlTable += "<td>" + SearchSet.getInt("quantity") + "</td>";
+                            htmlTable += "<td>" + SearchSet.getString("description") + "</td>";
+                            htmlTable += "</tr>";
+                        }
+                            htmlTable += "</table>";
+                        String content = new HomePageHTML().getHomePageHTML(userName, "Search Results:", htmlTable);
+                        response.response(content);
+                    }
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
 
             }
-//            if (request.getRequestMethod().equals("POST")) {
-//
-//                String user = request.getContent().split("&")[0];
-//                String passW = request.getContent().split("&")[1];
-//                String userName = user.split("=")[1];
-//                String password = passW.split("=")[1];
-//                try (Connection conn = getConnection()) {
-//
-//                    final PreparedStatement query = conn.prepareStatement("SELECT userID FROM User where userName =? and password =? ");
-//                    query.setString(1, userName);
-//                    query.setString(2, password);
-//                    ResultSet result = query.executeQuery();
-//                    if (result.next()) {
-//                        int userID = result.getInt("userID");
-//                        final String session = String.valueOf(UUID.randomUUID());
-//                        final PreparedStatement sessionQuery = conn.prepareStatement("INSERT INTO User_sessions(session,user_id) VALUES(?, ?) ");
-//                        sessionQuery.setString(1, session);
-//                        sessionQuery.setInt(2, userID);
-//                        sessionQuery.execute();
-//                        String content = new HomePageHTML().getHomePageHTML(userName, "");
-//                        response.response(content);
-//                    } else {
-//                        String content = new LoginPageHTML().getLoginPageHTML();
-//                        response.response(content + "\n" + "<p> Invalid userName and/or password.</p>");
-//                    }
-//
-//
-//                } catch (SQLException throwables) {
-//                    throwables.printStackTrace();
-//                }
-//
-//            }
         }
     }
 
