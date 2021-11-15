@@ -51,7 +51,7 @@ public class UpdateHandler implements Handler {
                     double price = Double.parseDouble(strings[3].split("=")[1]);
                     int quantity = Integer.parseInt(strings[4].split("=")[1]);
                     int itemID = Integer.parseInt(strings[6].split("=")[1]);
-                    PreparedStatement statement = conn.prepareStatement("UPDATE Item SET itemName=?,categoryID=?,brand=?,price=?,quantity=quantity+?,description=? WHERE itemID=?");
+                    PreparedStatement statement = conn.prepareStatement("UPDATE Item SET itemName=?,categoryID=?,brand=?,price=?,quantity=quantity+?,description=?, lastupdate = current_timestamp() WHERE itemID=?");
                     statement.setString(1, itemName);
                     statement.setInt(2, categoryID);
                     statement.setString(3, brand);
@@ -103,7 +103,20 @@ public class UpdateHandler implements Handler {
         htmlItem += "<tr><td><button id='update' type='submit' onclick='form_update()'>Update</button></td>";
         htmlItem += "<td><button id='delete' type='submit' onclick='form_delete()'>Delete</button></td></tr></form>";
         htmlItem += "</table>";
-        String content = new HomePageHTML().getHomePageHTML(userName, itemResultSet.getString("itemName") + ":", htmlItem);
+
+        String reminder = "";
+        int counterNum = 1;
+        final PreparedStatement lastUpdate = conn.prepareStatement("SELECT itemName FROM Item WHERE DATE_SUB(current_timestamp(), interval 30 day) > lastupdate");
+        ResultSet lastUpdateSet = lastUpdate.executeQuery();
+        if(!lastUpdateSet.isBeforeFirst()) {
+            reminder = "No reminders at this time.";
+        } else {
+            while (lastUpdateSet.next()) {
+                reminder += "<br>" + counterNum++ +". " + lastUpdateSet.getString("itemName") + " hasn't been updated for more than 30 days." + "</br>";
+            }
+        }
+
+        String content = new HomePageHTML().getHomePageHTML(userName, itemResultSet.getString("itemName") + ":", htmlItem, reminder);
         return content;
     }
 

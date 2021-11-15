@@ -18,15 +18,19 @@ public class HomeHandler implements Handler {
             response.response(content);
         } else {
             String sessionS = headers.get("cookie");
-            String sessionString = sessionS.split("=")[1];
+            String cookie = sessionS.split("=")[1];
             if (request.getRequestMethod().equals("GET")) {
                 try (Connection conn = getConnection()) {
-                    final PreparedStatement query = conn.prepareStatement("select u.username from User_sessions s, User u where s.user_id = u.userId and s.session=? ");
-                    query.setString(1, sessionString);
+                    final PreparedStatement query = conn.prepareStatement("select u.username from User_sessions s, User u where s.user_id = u.userId and s.session=? and s.active=1");
+                    query.setString(1, cookie);
                     ResultSet resultSet = query.executeQuery();
-                    resultSet.next();
+                    if(!resultSet.next()) {
+                        response.addHeader("location", "/login");
+                        response.setCode(302);
+                        response.response("<html>302 Found</html>");
+                        return;
+                    }
                     String userName = resultSet.getString("username");
-
                     final PreparedStatement table = conn.prepareStatement("SELECT i.itemID, i.itemName, c.categoryName," +
                             " i.brand, i.price, i.quantity, i.description FROM Item i, Category c WHERE i.categoryID=c.categoryID ORDER BY i.itemID");
                     ResultSet tableResultSet = table.executeQuery();
@@ -46,7 +50,8 @@ public class HomeHandler implements Handler {
                         htmlTable += "</tr>";
                     }
                     htmlTable += "</table>";
-                    String content = new HomePageHTML().getHomePageHTML(userName, "Current Inventory", htmlTable);
+                    String reminder = getReminder(conn);
+                    String content = new HomePageHTML().getHomePageHTML(userName, "Current Inventory", htmlTable,reminder);
                     response.response(content);
 
                 } catch (SQLException throwables) {
@@ -56,14 +61,15 @@ public class HomeHandler implements Handler {
             else if(request.getRequestMethod().equals("POST")){
                 try (Connection conn = getConnection()) {
                     final PreparedStatement query = conn.prepareStatement("select u.username from User_sessions s, User u where s.user_id = u.userId and s.session=?");
-                    query.setString(1, sessionString);
+                    query.setString(1, cookie);
                     ResultSet resultSet = query.executeQuery();
                     resultSet.next();
                     String userName = resultSet.getString("username");
 
                     String[] contentParts = request.getContent().split("=");
                     if (contentParts.length == 1) {
-                        String content = new HomePageHTML().getHomePageHTML(userName, "Alert: Please enter for searching.","");
+                        String reminder = getReminder(conn);
+                        String content = new HomePageHTML().getHomePageHTML(userName, "Alert: Please enter for searching.","", reminder);
                         response.response(content);
                     }
                     else {
@@ -89,8 +95,9 @@ public class HomeHandler implements Handler {
                             htmlTable += "<td>" + SearchSet.getString("description") + "</td>";
                             htmlTable += "</tr>";
                         }
-                            htmlTable += "</table>";
-                        String content = new HomePageHTML().getHomePageHTML(userName, "Search Results:", htmlTable);
+                        htmlTable += "</table>";
+                        String reminder = getReminder(conn);
+                        String content = new HomePageHTML().getHomePageHTML(userName, "Search Results:", htmlTable, reminder);
                         response.response(content);
                     }
                 } catch (SQLException throwables) {
@@ -99,6 +106,21 @@ public class HomeHandler implements Handler {
 
             }
         }
+    }
+
+    private String getReminder(Connection conn) throws SQLException {
+        String reminder = "";
+        int counterNum = 1;
+        final PreparedStatement lastUpdate = conn.prepareStatement("SELECT itemName FROM Item WHERE DATE_SUB(current_timestamp(), interval 30 day) > lastupdate");
+        ResultSet lastUpdateSet = lastUpdate.executeQuery();
+        if(!lastUpdateSet.isBeforeFirst()) {
+            return "No reminders at this time.";
+        } else {
+            while (lastUpdateSet.next()) {
+                reminder += "<br>" + counterNum++ +". " + lastUpdateSet.getString("itemName") + " hasn't been updated for more than 30 days." + "</br>";
+            }
+        }
+        return reminder;
     }
 
     public static Connection getConnection(){

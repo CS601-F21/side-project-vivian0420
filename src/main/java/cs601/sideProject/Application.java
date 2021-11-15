@@ -6,6 +6,7 @@ public class Application {
         HttpServer server = new HttpServer(port);
         server.setMapping("/home", new HomeHandler());
         server.setMapping("/login", new LoginHandler());
+        server.setMapping("/logout", new LogoutHandler());
         server.setMapping("/CreateItemHandler", new CreateItemHandler());
         server.setMapping("/update", new UpdateHandler());
         server.startup();

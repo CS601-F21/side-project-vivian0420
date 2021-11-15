@@ -2,7 +2,7 @@ package cs601.sideProject;
 
 public class HomePageHTML {
 
-    public String getHomePageHTML(String user, String columnContent, String table) {
+    public String getHomePageHTML(String user, String columnContent, String table, String reminder) {
         return String.format("""
                 
                 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -301,7 +301,10 @@ public class HomePageHTML {
                             <div class="column side">
                               <p class="welcome"> *Welcome back* </p>
                               <p class="name"> %s </p> 
-                               <button id="logout">Logout</button>
+                              <form action="/logout" method="POST" accept-charset="utf-8">
+                                 <button id='logout' type='submit'>Logout</button>
+                              </form>
+                               
                               <div class="container">
                               
                               </div>    
@@ -314,7 +317,7 @@ public class HomePageHTML {
                           
                           <div class="column side">
                               <h2>Reminder</h2>
-                              <p>here will present reminder</p>
+                              <p>%s</p>
                           </div>
                         </div>
                           <div class="footer">
@@ -323,7 +326,7 @@ public class HomePageHTML {
                         </body>
                         </html>
                        </html>
-                       """, user, columnContent,table);
+                       """, user, columnContent,table,reminder);
 
     }
 }
