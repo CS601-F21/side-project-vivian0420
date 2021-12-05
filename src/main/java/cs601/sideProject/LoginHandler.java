@@ -11,7 +11,7 @@ public class LoginHandler implements Handler{
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
         if (request.getRequestMethod().equals("GET")) {
-            String content = new LoginPageHTML().getLoginPageHTML();
+            String content = new LoginPageHTML().getLoginPageHTML("Login",HomeHandler.getContent());
             response.response(content);
         }
         if(request.getRequestMethod().equals("POST")) {
@@ -40,7 +40,7 @@ public class LoginHandler implements Handler{
 
 
                 } else {
-                    String content = new LoginPageHTML().getLoginPageHTML();
+                    String content = new LoginPageHTML().getLoginPageHTML("Login", HomeHandler.getContent());
                     response.response(content + "\n" + "<p> Invalid userName and/or password.</p>");
                 }
 

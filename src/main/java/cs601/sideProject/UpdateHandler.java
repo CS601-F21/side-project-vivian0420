@@ -18,17 +18,18 @@ public class UpdateHandler implements Handler {
             String userName;
             Map<String, String> headers = request.getHeaders();
             if (!headers.containsKey("cookie")) {
-                String content = new LoginPageHTML().getLoginPageHTML();
+                String content = new LoginPageHTML().getLoginPageHTML("Login", HomeHandler.getContent());
                 response.response(content);
                 return;
             } else {
                 String sessionS = headers.get("cookie");
-                String sessionString = sessionS.split("=")[1];
+                String sessionString = sessionS.split(";")[1];
+                String session = sessionString.split("=")[1];
                 final PreparedStatement query = conn.prepareStatement("select u.username from User_sessions s, User u where s.user_id = u.userId and s.session=?");
-                query.setString(1, sessionString);
+                query.setString(1, session);
                 ResultSet resultSet = query.executeQuery();
                 if (!resultSet.next()) {
-                    response.response(new LoginPageHTML().getLoginPageHTML());
+                    response.response(new LoginPageHTML().getLoginPageHTML("Login", HomeHandler.getContent()));
                     return;
                 }
                 userName = resultSet.getString("username");
@@ -86,7 +87,7 @@ public class UpdateHandler implements Handler {
         }
     }
 
-    private String getContent(String userName, int id, Connection conn) throws SQLException {
+        private String getContent(String userName, int id, Connection conn) throws SQLException {
         final PreparedStatement queryItem = conn.prepareStatement("SELECT i.itemName, i.itemID, c.categoryName, c.categoryID, i.brand, i.price, i.quantity, i.description FROM Item i, Category c WHERE c.categoryID = i.categoryID AND i.itemID=?");
         queryItem.setInt(1, id);
         ResultSet itemResultSet = queryItem.executeQuery();

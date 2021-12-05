@@ -9,6 +9,7 @@ public class Application {
         server.setMapping("/logout", new LogoutHandler());
         server.setMapping("/CreateItemHandler", new CreateItemHandler());
         server.setMapping("/update", new UpdateHandler());
+        server.setMapping("/signup", new SignUpHandler());
         server.startup();
 
 

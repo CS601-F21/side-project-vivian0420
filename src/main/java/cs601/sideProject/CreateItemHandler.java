@@ -8,11 +8,26 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class CreateItemHandler implements Handler{
 
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
+        String sessionCookie = null;
+        Map<String, String> headers = request.getHeaders();
+        if (!headers.containsKey("cookie")  || !headers.get("cookie").contains("session=")) {
+            response.setCode(302);
+            response.addHeader("location", "/login");
+            response.response("<html>302 found</html>");
+        } else {
+            String cookies = headers.get("cookie");
+            for (String cookie : cookies.split(";")) {
+                if (cookie.trim().startsWith("session=")) {
+                    sessionCookie = cookie.split("=")[1];
+                }
+            }
+        }
         String itenName = new Gson().fromJson(request.getContent(),JsonObject.class).get("itemname").getAsString();
         String brand = new Gson().fromJson(request.getContent(),JsonObject.class).get("brand").getAsString();
         String category = new Gson().fromJson(request.getContent(),JsonObject.class).get("category").getAsString();
@@ -28,7 +43,13 @@ public class CreateItemHandler implements Handler{
             resultSet.next();
             int categeoryId = resultSet.getInt("categoryID");
 
-            String insertContactSql = "INSERT INTO Item (itemName, brand, categoryID, price, quantity, description) VALUES (?, ?, ?, ?, ?, ?);";
+            PreparedStatement userIdQuery = con.prepareStatement("SELECT user_id FROM User_sessions WHERE session=?");
+            userIdQuery.setString(1,sessionCookie);
+            ResultSet userIdResult = userIdQuery.executeQuery();
+            userIdResult.next();
+            int userId = userIdResult.getInt("user_id");
+
+            String insertContactSql = "INSERT INTO Item (itemName, brand, categoryID, price, quantity, description, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement posted2 = con.prepareStatement(insertContactSql);
             posted2.setString(1,itenName);
             posted2.setString(2,brand);
@@ -36,6 +57,7 @@ public class CreateItemHandler implements Handler{
             posted2.setDouble(4, price);
             posted2.setInt(5, qty);
             posted2.setString(6, comment);
+            posted2.setInt(7,userId);
             posted2.executeUpdate();
         } catch (SQLException throwables) {
             throwables.printStackTrace();

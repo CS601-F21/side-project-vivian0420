@@ -9,7 +9,8 @@ public class LogoutHandler implements Handler{
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
         String session = request.getHeaders().get("cookie");
-        String cookie = session.split("=")[1];
+        String cookieString = session.split(";")[1];
+        String cookie = cookieString.split("=")[1];
         if(request.getRequestMethod().equals("POST")) {
             try(Connection conn = getConnection()){
                 PreparedStatement query = conn.prepareStatement("UPDATE User_sessions SET active=0 WHERE session=?");

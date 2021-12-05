@@ -49,7 +49,7 @@ public class HttpServer {
 
                         String requestLine = inStream.readLine();
                         String line = inStream.readLine();
-                        while(line != null & !line.trim().isEmpty()) {
+                        while(line != null && !line.trim().isEmpty()) {
                             if(line.contains(":")) {
                                 headers.put(line.split(":")[0].toLowerCase(), line.split(":")[1]);
                             }
