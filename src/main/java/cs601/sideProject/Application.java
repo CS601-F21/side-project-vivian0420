@@ -1,6 +1,10 @@
 package cs601.sideProject;
 
 public class Application {
+    /**
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         int port = 1024;
         HttpServer server = new HttpServer(port);
@@ -11,7 +15,5 @@ public class Application {
         server.setMapping("/update", new UpdateHandler());
         server.setMapping("/signup", new SignUpHandler());
         server.startup();
-
-
     }
 }

@@ -1,5 +1,9 @@
 package cs601.sideProject;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,8 +11,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+/**
+ *
+ */
 public class HomeHandler implements Handler {
 
+    /**
+     *
+     * @param request
+     * @param response
+     */
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
         Map<String, String> headers = request.getHeaders();
@@ -34,18 +46,32 @@ public class HomeHandler implements Handler {
                         response.response("<html>302 Found</html>");
                         return;
                     }
+                    String sort = request.getQueryParam().get("sort");
+                    if(sort == null) {
+                        sort = "i.itemID";
+                    }
                     String userName = resultSet.getString("username");
                     int userId = resultSet.getInt("user_id");
                     final PreparedStatement table = conn.prepareStatement("SELECT i.itemID, i.itemName, c.categoryName," +
-                            " i.brand, i.price, i.quantity, i.description FROM Item i, Category c WHERE i.user_id=? AND i.categoryID=c.categoryID ORDER BY i.itemID");
+                            " i.brand, i.price, i.quantity, i.description FROM Item i, Category c WHERE i.user_id=? AND i.categoryID=c.categoryID ORDER BY " + sort + " desc");
                     table.setInt(1, userId);
                     ResultSet tableResultSet = table.executeQuery();
                     String htmlTable = "";
                     if(!tableResultSet.isBeforeFirst()) {
-                        htmlTable = "You haven't record any inventory yet.";
+                        htmlTable += "<h2>Current Inventory</h2>";
+                        htmlTable += "<p>You haven't any records yet.</p>";
                     }
                     else {
-                        htmlTable = "<table border='1' cellspacing='0' cellpadding='5'>";
+                        htmlTable += "<h2>Current Inventory</h2>";
+                        htmlTable += "<form action='/home?sortby=' method='GET'>";
+                        htmlTable += "<label for='sort'>Sort by:</label>";
+                        htmlTable += "<select name='sort' id='sort' style='margin-left: 10px;'>";
+                        htmlTable += "<option value='select'>-Please select-</option>";
+                        htmlTable += "<option value='quantity'>Quantity</option>";
+                        htmlTable += "<option value='categoryName'>Category</option>";
+                        htmlTable += "<option value='lastupdate'>Date Updated</option></select>";
+                        htmlTable += "<input style='margin-left: 10px; margin-bottom: 5px;' type='submit' value='Submit'></form>";
+                        htmlTable += "<table border='1' cellspacing='0' cellpadding='5'>";
                         int count = 1;
                         htmlTable += "<tr bgcolor='#DCDCDC'><td>" + "N0." + "</td><td>" + "Name " + "</td><td>" + "Category " + "</td><td>" + "Brand " + "</td><td>" + "Price " + "</td><td>" + "Quantity " + "</td><td>" + "Comment " + "</td></tr>";
                         while (tableResultSet.next()) {
@@ -62,11 +88,11 @@ public class HomeHandler implements Handler {
                         }
                         htmlTable += "</table>";
                     }
-                    String reminder = getReminder(conn);
-                    String content = new HomePageHTML().getHomePageHTML(userName, "Current Inventory", htmlTable,reminder);
+                    String reminder = getReminder(conn,userId);
+                    String content = new HomePageHTML().getHomePageHTML(userName, htmlTable, reminder);
                     response.response(content);
 
-                } catch (SQLException throwables) {
+                } catch (SQLException | FileNotFoundException throwables) {
                     throwables.printStackTrace();
                 }
             }
@@ -79,10 +105,11 @@ public class HomeHandler implements Handler {
                     String userName = resultSet.getString("username");
                     int userId = resultSet.getInt("user_id");
 
-                    String[] contentParts = request.getContent().split("=");
-                    if (contentParts.length == 1) {
-                        String reminder = getReminder(conn);
-                        String content = new HomePageHTML().getHomePageHTML(userName, "Alert: Please enter for searching.","", reminder);
+                    String contentParts = request.getFormData().get("search");
+                    if (contentParts == null) {
+                        String reminder = getReminder(conn, userId);
+                        String html = "<p>Please enter for searching.</p>";
+                        String content = new HomePageHTML().getHomePageHTML(userName,html, reminder);
                         response.response(content);
                     }
                     else {
@@ -90,23 +117,24 @@ public class HomeHandler implements Handler {
                                 " i.brand, i.price, i.quantity, i.description FROM Item i, Category c WHERE i.categoryID = c.categoryID " +
                                 "AND i.user_id=? AND (i.itemName LIKE ? OR c.categoryName LIKE ? OR i.brand LIKE ?)" );
                         result.setInt(1,userId);
-                        result.setString(2,"%" + contentParts[1] + "%");
-                        result.setString(3,"%" + contentParts[1] + "%");
-                        result.setString(4,"%" + contentParts[1] + "%");
+                        result.setString(2,"%" + contentParts + "%");
+                        result.setString(3,"%" + contentParts + "%");
+                        result.setString(4,"%" + contentParts + "%");
                         ResultSet SearchSet = result.executeQuery();
                         String htmlTable = "";
                         if(!SearchSet.isBeforeFirst()) {
-                            htmlTable = contentParts[1] + " not found.";
+                            htmlTable = contentParts + " not found.";
                         }
                         else {
                             htmlTable = "<table border='1' cellspacing='0' cellpadding='5'>";
                             int count = 1;
+                            htmlTable += "<h3>Search Results:</h3>";
                             htmlTable += "<tr bgcolor='#DCDCDC'><td>" + "N0." + "</td><td>" + "Name " + "</td><td>" + "Category " + "</td><td>" + "Brand " + "</td><td>" + "Price " + "</td><td>" + "Quantity " + "</td><td>" + "Comment " + "</td></tr>";
                             while (SearchSet.next()) {
                                 htmlTable += "<tr>";
                                 htmlTable += "<td>" + count++ + "</td>";
-                                htmlTable += "<td>" + "<a href=\"/update?itemID=" + SearchSet.getInt("itemID") +
-                                        "\">" + SearchSet.getString("itemName") + "</a></td>";
+                                htmlTable += "<td>" + "<a href='update?itemID=" + SearchSet.getInt("itemID") +
+                                        "'>" + SearchSet.getString("itemName") + "</a></td>";
                                 htmlTable += "<td>" + SearchSet.getString("categoryName") + "</td>";
                                 htmlTable += "<td>" + SearchSet.getString("brand") + "</td>";
                                 htmlTable += "<td>" + SearchSet.getDouble("price") + "</td>";
@@ -116,11 +144,11 @@ public class HomeHandler implements Handler {
                             }
                             htmlTable += "</table>";
                         }
-                        String reminder = getReminder(conn);
-                        String content = new HomePageHTML().getHomePageHTML(userName, "Search Results:", htmlTable, reminder);
+                        String reminder = getReminder(conn,userId);
+                        String content = new HomePageHTML().getHomePageHTML(userName, htmlTable, reminder);
                         response.response(content);
                     }
-                } catch (SQLException throwables) {
+                } catch (SQLException | FileNotFoundException throwables) {
                     throwables.printStackTrace();
                 }
 
@@ -128,27 +156,48 @@ public class HomeHandler implements Handler {
         }
     }
 
-    private String getReminder(Connection conn) throws SQLException {
+    /**
+     *
+     * @param conn
+     * @param userId
+     * @return
+     * @throws SQLException
+     */
+    private String getReminder(Connection conn, int userId) throws SQLException {
         String reminder = "";
         int counterNum = 1;
-        final PreparedStatement lastUpdate = conn.prepareStatement("SELECT itemName FROM Item WHERE DATE_SUB(current_timestamp(), interval 30 day) > lastupdate");
+        final PreparedStatement lastUpdate = conn.prepareStatement("SELECT itemID,itemName FROM Item WHERE user_id=? AND DATE_SUB(current_timestamp(), interval 30 day) > lastupdate");
+        lastUpdate.setInt(1,userId);
         ResultSet lastUpdateSet = lastUpdate.executeQuery();
-        if(!lastUpdateSet.isBeforeFirst()) {
+        final PreparedStatement quantity = conn.prepareStatement("SELECT itemID,itemName,quantity FROM Item WHERE user_id=? AND quantity <= 0 ");
+        quantity.setInt(1,userId);
+        ResultSet quantitySet = quantity.executeQuery();
+        if(!lastUpdateSet.isBeforeFirst() && !quantitySet.isBeforeFirst()) {
             return "No reminders at this time.";
         } else {
+            while(quantitySet.next()) {
+                reminder += "<br>" + counterNum++ +". " + "<a href='update?itemID=" + quantitySet.getInt("itemID") + "'>" + quantitySet.getString("itemName") + "</a>" + " 's quantity is " + quantitySet.getString("quantity") + "." +"</br>";
+            }
             while (lastUpdateSet.next()) {
-                reminder += "<br>" + counterNum++ +". " + lastUpdateSet.getString("itemName") + " hasn't been updated for more than 30 days." + "</br>";
+                reminder += "<br>" + counterNum++ +". " + "<a href='update?itemID=" + lastUpdateSet.getInt("itemID") + "'>" + lastUpdateSet.getString("itemName") + "</a>" + " hasn't been updated for more than 30 days." + "</br>";
             }
         }
         return reminder;
     }
 
-    public static Connection getConnection(){
+    /**
+     *
+     * @return
+     * @throws FileNotFoundException
+     */
+    public static Connection getConnection() throws FileNotFoundException {
+        Gson gson = new Gson();
+        JsonObject config = gson.fromJson(new FileReader("config.json"),JsonObject.class);
         try{
             String driver = "com.mysql.jdbc.Driver";
-            String url = "jdbc:mysql://localhost:3306/cs601sideProject";
-            String username = "root";
-            String password = "2281997163";
+            String url = config.get("url").getAsString();
+            String username = config.get("username").getAsString();
+            String password = config.get("password").getAsString();
             Class.forName(driver);
 
             Connection con = DriverManager.getConnection(url,username,password);
@@ -162,16 +211,20 @@ public class HomeHandler implements Handler {
         return null;
     }
 
+    /**
+     *
+     * @return
+     */
     public static String getContent() {
         String html = "<form action='/login' method='post' accept-charset='utf-8'>";
         html += "<div class='form-group'><label for='usrname'><span class='glyphicon glyphicon-user'></span><b>Username<b></label>";
         html += "<input id='username' type='text' class='form-control' id='usrname' name='username' placeholder='Enter email'/>";
         html += "</div><div class='form-group'>";
         html += "<label for='psw'><span class='glyphicon glyphicon-eye-open'></span> Password</label>";
-        html += "<input id=\"password\" type=\"password\" class=\"form-control\" id=\"psw\" name=\"password\" placeholder=\"Enter password\"/></div>";
-        html += "<button id=\"login\" type=\"submit\" class=\"btn btn-success btn-block\"><span class=\"glyphicon glyphicon-off\"></span> Login</button>";
-        html += "<a style=\"font-size: 10px; margin-left: 45px;\" >No account yet?</a>";
-        html += "<a href=\"/signup\" style=\"color:#000000; size: 10px; margin-left:5px;\">Sign up</a></form>";
+        html += "<input id='password' type='password' class='form-control' id='psw' name='password' placeholder='Enter password'/></div>";
+        html += "<button id='login' type='submit' class='btn btn-success btn-block'><span class='glyphicon glyphicon-off'></span> Login</button>";
+        html += "<a style='font-size: 10px; margin-left: 45px;' >No account yet?</a>";
+        html += "<a href='/signup' style='color:#000000; size: 10px; margin-left:5px;'>Sign up</a></form>";
         return html;
     }
 }

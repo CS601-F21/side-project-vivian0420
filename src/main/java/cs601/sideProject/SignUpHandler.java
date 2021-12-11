@@ -1,13 +1,22 @@
 package cs601.sideProject;
 
+import java.io.FileNotFoundException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+/**
+ *
+ */
 public class SignUpHandler implements Handler{
+
+    /**
+     *
+     * @param request
+     * @param response
+     */
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
         if(request.getRequestMethod().equals("GET")) {
@@ -25,7 +34,7 @@ public class SignUpHandler implements Handler{
                 response.addHeader("location", "/signup?error=" + URLEncoder.encode("Password not matched", StandardCharsets.UTF_8));
                 response.response("<html>302 Found</html>");
             } else {
-                try (Connection conn = getConnection()) {
+                try (Connection conn = HomeHandler.getConnection()) {
                     final PreparedStatement insertUser = conn.prepareStatement("Insert INTO User(userName,password) VALUES(?,?)");
                     insertUser.setString(1,userName);
                     insertUser.setString(2,userPassword);
@@ -33,13 +42,18 @@ public class SignUpHandler implements Handler{
                     response.setCode(302);
                     response.addHeader("location", "/login");
                     response.response("<html>302 Found</html>");
-                } catch (SQLException throwables) {
+                } catch (SQLException | FileNotFoundException throwables) {
                     throwables.printStackTrace();
                 }
             }
         }
     }
 
+    /**
+     *
+     * @param request
+     * @return
+     */
     public String getContent(ServerRequest request) {
 
         String html = "<form action='/signup' method='post' accept-charset='utf-8'>";
@@ -56,26 +70,6 @@ public class SignUpHandler implements Handler{
         html += "<label for='psw'><span class='glyphicon glyphicon-eye-open'></span> Confirm Password</label>";
         html += "<input id='password' type='password' class='form-control' id='re_psw' name='re_password' placeholder='Enter password again'/></div>";
         html += "<button id='confirm' type='submit' class='btn btn-success btn-block'><span class='glyphicon glyphicon-off'></span> Confirm</button></form>";
-
         return html;
-    }
-
-    public static Connection getConnection(){
-        try{
-            String driver = "com.mysql.jdbc.Driver";
-            String url = "jdbc:mysql://localhost:3306/cs601sideProject";
-            String username = "root";
-            String password = "2281997163";
-            Class.forName(driver);
-
-            Connection con = DriverManager.getConnection(url,username,password);
-            return con;
-
-        } catch (ClassNotFoundException e) {
-            System.out.println(e);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return null;
     }
 }

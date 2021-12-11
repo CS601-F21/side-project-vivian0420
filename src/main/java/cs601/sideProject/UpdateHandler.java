@@ -1,21 +1,31 @@
 package cs601.sideProject;
 
+import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
+/**
+ *
+ */
 public class UpdateHandler implements Handler {
+
+    /**
+     *
+     * @param request
+     * @param response
+     */
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
-        try (Connection conn = getConnection()) {
+
+        try (Connection conn = HomeHandler.getConnection()) {
             String userName;
+            int userID;
             Map<String, String> headers = request.getHeaders();
             if (!headers.containsKey("cookie")) {
                 String content = new LoginPageHTML().getLoginPageHTML("Login", HomeHandler.getContent());
@@ -25,7 +35,7 @@ public class UpdateHandler implements Handler {
                 String sessionS = headers.get("cookie");
                 String sessionString = sessionS.split(";")[1];
                 String session = sessionString.split("=")[1];
-                final PreparedStatement query = conn.prepareStatement("select u.username from User_sessions s, User u where s.user_id = u.userId and s.session=?");
+                final PreparedStatement query = conn.prepareStatement("select s.user_id,u.username from User_sessions s, User u where s.user_id = u.userId and s.session=?");
                 query.setString(1, session);
                 ResultSet resultSet = query.executeQuery();
                 if (!resultSet.next()) {
@@ -33,10 +43,11 @@ public class UpdateHandler implements Handler {
                     return;
                 }
                 userName = resultSet.getString("username");
+                userID = resultSet.getInt("user_id");
             }
             if (request.getRequestMethod().equals("GET")) {
                 int id = Integer.parseInt(request.getQueryParam().get("itemID"));
-                String content = getContent(userName, id, conn);
+                String content = getContent(userName, id, userID, conn);
                 response.response(content);
             } else if (request.getRequestMethod().equals("POST")) {
                 if (request.getFormData().get("formAction").equals("UPDATE")) {
@@ -51,23 +62,27 @@ public class UpdateHandler implements Handler {
                     String brand = strings[2].split("=")[1];
                     double price = Double.parseDouble(strings[3].split("=")[1]);
                     int quantity = Integer.parseInt(strings[4].split("=")[1]);
-                    int itemID = Integer.parseInt(strings[6].split("=")[1]);
-                    PreparedStatement statement = conn.prepareStatement("UPDATE Item SET itemName=?,categoryID=?,brand=?,price=?,quantity=quantity+?,description=?, lastupdate = current_timestamp() WHERE itemID=?");
+                    int transaction = Integer.parseInt(strings[5].split("=")[1]);
+                    int itemID = Integer.parseInt(strings[7].split("=")[1]);
+
+                    PreparedStatement statement = conn.prepareStatement("UPDATE Item SET itemName=?,categoryID=?,brand=?,price=?,quantity=?+?,description=?, lastupdate = current_timestamp() WHERE itemID=?");
                     statement.setString(1, itemName);
                     statement.setInt(2, categoryID);
                     statement.setString(3, brand);
                     statement.setDouble(4, price);
                     statement.setInt(5, quantity);
-                    if(strings[5].split("=").length == 2) {
-                        statement.setString(6, strings[5].split("=")[1]);
+                    statement.setInt(6,transaction);
+                    if(strings[6].split("=").length == 2) {
+                        statement.setString(7, strings[6].split("=")[1]);
                     } else {
-                        statement.setString(6, "");
+                        statement.setString(7, "");
                     }
 
-                    statement.setInt(7, itemID);
+                    statement.setInt(8, itemID);
                     statement.executeUpdate();
-                    String content = getContent(userName, itemID, conn);
-                    response.response(content);
+                    response.setCode(302);
+                    response.addHeader("location", "/home");
+                    response.response("<html>302 removed</html>");
                 } else if (request.getFormData().get("formAction").equals("DELETE")) {
                     int itemID = Integer.parseInt(request.getFormData().get("itemID"));
                     PreparedStatement delete = conn.prepareStatement("delete from Item where itemID = ?");
@@ -82,14 +97,23 @@ public class UpdateHandler implements Handler {
                 }
 
             }
-        } catch (SQLException throwables) {
+        } catch (SQLException | FileNotFoundException throwables) {
             throwables.printStackTrace();
         }
     }
 
-        private String getContent(String userName, int id, Connection conn) throws SQLException {
+    /**
+     *
+     * @param userName
+     * @param itemId
+     * @param userID
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
+    private String getContent(String userName, int itemId, int userID, Connection conn) throws SQLException {
         final PreparedStatement queryItem = conn.prepareStatement("SELECT i.itemName, i.itemID, c.categoryName, c.categoryID, i.brand, i.price, i.quantity, i.description FROM Item i, Category c WHERE c.categoryID = i.categoryID AND i.itemID=?");
-        queryItem.setInt(1, id);
+        queryItem.setInt(1, itemId);
         ResultSet itemResultSet = queryItem.executeQuery();
         String htmlItem = "<table>";
         itemResultSet.next();
@@ -98,6 +122,7 @@ public class UpdateHandler implements Handler {
         htmlItem += "<tr>" + "<td>" + "Brand: " + "</td>" + "<td><input type='text' value='" + itemResultSet.getString("brand") + "' name='brand'/></td>" + "</tr>";
         htmlItem += "<tr>" + "<td>" + "Price: " + "</td>" + "<td><input type='text' value='" + itemResultSet.getDouble("price") + "' name='price'/></td>" + "</tr>";
         htmlItem += "<tr>" + "<td>" + "Quantity: " + "</td>" + "<td><input type='text' value='" + itemResultSet.getInt("quantity") + "' name='quantity'/></td>" + "</tr>";
+        htmlItem += "<tr>" + "<td>" + "Transaction: " + "</td>" + "<td><input type='text' value='0'name='transaction'/></td>" + "</tr>";
         htmlItem += "<tr>" + "<td>" + "Comment: " + "</td>" + "<td><input type='text' value='" + itemResultSet.getString("description") + "' name='description'/></td>" + "</tr>";
         htmlItem += "<input type='hidden' name='itemID' value='" + itemResultSet.getInt("itemID") + "' />";
         htmlItem += "<input type='hidden' name='formAction' id='formAction' value='UPDATE'/>";
@@ -107,39 +132,34 @@ public class UpdateHandler implements Handler {
 
         String reminder = "";
         int counterNum = 1;
-        final PreparedStatement lastUpdate = conn.prepareStatement("SELECT itemName FROM Item WHERE DATE_SUB(current_timestamp(), interval 30 day) > lastupdate");
-        ResultSet lastUpdateSet = lastUpdate.executeQuery();
-        if(!lastUpdateSet.isBeforeFirst()) {
-            reminder = "No reminders at this time.";
-        } else {
-            while (lastUpdateSet.next()) {
-                reminder += "<br>" + counterNum++ +". " + lastUpdateSet.getString("itemName") + " hasn't been updated for more than 30 days." + "</br>";
-            }
-        }
+         final PreparedStatement lastUpdate = conn.prepareStatement("SELECT itemID,itemName FROM Item WHERE user_id=? AND DATE_SUB(current_timestamp(), interval 30 day) > lastupdate ");
+         lastUpdate.setInt(1,userID);
+         ResultSet lastUpdateSet = lastUpdate.executeQuery();
+         final PreparedStatement quantity = conn.prepareStatement("SELECT itemID,itemName,quantity FROM Item WHERE user_id=? AND quantity <= 0 ");
+         quantity.setInt(1,userID);
+         ResultSet quantitySet = quantity.executeQuery();
+         if(!lastUpdateSet.isBeforeFirst() && !quantitySet.isBeforeFirst()) {
+             reminder = "No reminders at this time.";
+         } else {
+             while(quantitySet.next()) {
+                 reminder += "<br>" + counterNum++ +". " + "<a href='update?itemID=" + quantitySet.getInt("itemID") + "'>" + quantitySet.getString("itemName") + "</a>" + " 's quantity is " + quantitySet.getString("quantity") + "." +"</br>";
+             }
+             while (lastUpdateSet.next()) {
+                 reminder += "<br>" + counterNum++ +". " + "<a href='update?itemID=" + lastUpdateSet.getInt("itemID") + "'>" + lastUpdateSet.getString("itemName") + "</a>" + " hasn't been updated for more than 30 days." + "</br>";
+             }
+         }
 
-        String content = new HomePageHTML().getHomePageHTML(userName, itemResultSet.getString("itemName") + ":", htmlItem, reminder);
+        String content = new HomePageHTML().getHomePageHTML(userName, htmlItem, reminder);
         return content;
     }
 
-    public static Connection getConnection() {
-        try {
-            String driver = "com.mysql.jdbc.Driver";
-            String url = "jdbc:mysql://localhost:3306/cs601sideProject";
-            String username = "root";
-            String password = "2281997163";
-            Class.forName(driver);
-
-            Connection con = DriverManager.getConnection(url, username, password);
-            return con;
-
-        } catch (ClassNotFoundException e) {
-            System.out.println(e);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return null;
-    }
-
+    /**
+     *
+     * @param categoryId
+     * @param con
+     * @return
+     * @throws SQLException
+     */
     public String select(int categoryId, Connection con) throws SQLException {
         final PreparedStatement query = con.prepareStatement("SELECT categoryName, categoryID FROM Category");
         ResultSet categorySet = query.executeQuery();

@@ -6,6 +6,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *
+ */
 public class ServerRequest {
     private final String requestLine;
     private final Map<String, String> headers;
@@ -16,6 +19,12 @@ public class ServerRequest {
     private final Map<String, String> queryParam;
 
 
+    /**
+     *
+     * @param requestLine
+     * @param headers
+     * @param content
+     */
     public ServerRequest(String requestLine, Map<String, String> headers, String content) {
         this.requestLine = requestLine;
         this.headers = headers;
@@ -47,18 +56,35 @@ public class ServerRequest {
             }
         }
     }
+
+    /**
+     *
+     * @return
+     */
     public boolean is400() {
         return this.requestMethod == null || this.path == null || this.version == null;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean is405() {
         return !this.requestMethod.equals("GET") && !this.requestMethod.equals("POST");
     }
 
+    /**
+     *
+     * @return
+     */
     public String getContent() {
         return this.content;
     }
 
+    /**
+     *
+     * @return
+     */
     public Map<String, String> getFormData() {
         Map<String, String> form = new HashMap<>();
         try {
@@ -77,18 +103,34 @@ public class ServerRequest {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public String getPath() {
         return this.path;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getRequestMethod() {
         return this.requestMethod;
     }
 
+    /**
+     *
+     * @return
+     */
     public Map<String, String> getHeaders(){
         return this.headers;
     }
 
+    /**
+     *
+     * @return
+     */
     public Map<String, String> getQueryParam() {
         return this.queryParam;
     }

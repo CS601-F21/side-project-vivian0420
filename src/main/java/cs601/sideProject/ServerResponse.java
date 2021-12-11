@@ -4,12 +4,18 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *
+ */
 public class ServerResponse {
     private int code;
     private PrintWriter output;
     private Map<String, String> headers;
-    //private Map<String, String> headers;
 
+    /**
+     *
+     * @param output
+     */
     public ServerResponse(PrintWriter output) {
         this.code = 200;
         this.output = output;
@@ -17,14 +23,28 @@ public class ServerResponse {
 
     }
 
+    /**
+     *
+     * @param code
+     */
     public void setCode(int code) {
         this.code = code;
     }
 
+    /**
+     *
+     * @param name
+     * @param content
+     */
     public void addHeader(String name, String content) {
 
         headers.put(name, content);
     }
+
+    /**
+     *
+     * @param content
+     */
     public void response(String content) {
 
         this.output.println("HTTP/1.1 " + this.code);

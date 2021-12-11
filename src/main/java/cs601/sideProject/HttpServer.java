@@ -6,16 +6,22 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ *
+ */
 public class HttpServer {
        private volatile boolean running = true;
        private Map<String, Handler> mapping;
        private int port;
        private ServerSocket serverSocket;
 
+    /**
+     *
+     * @param port
+     */
     public HttpServer( int port) {
         this.mapping = new HashMap<String, Handler>();
         this.port = port;
@@ -26,10 +32,18 @@ public class HttpServer {
         }
     }
 
+    /**
+     *
+     * @param path
+     * @param handler
+     */
     public void setMapping(String path, Handler handler) {
         this.mapping.put(path, handler);
     }
 
+    /**
+     *
+     */
     public void startup() {
         new Thread(() -> {
             while(running) {
@@ -71,6 +85,13 @@ public class HttpServer {
             }
         }).start();
     }
+
+    /**
+     *
+     * @param headers
+     * @param in
+     * @return
+     */
     public String getContent(Map<String, String> headers, BufferedReader in) {
         if (!headers.containsKey("content-length")) {
             return null;
@@ -86,6 +107,11 @@ public class HttpServer {
         return new String(content);
     }
 
+    /**
+     *
+     * @param request
+     * @param response
+     */
     public void handleRequest(ServerRequest request, ServerResponse response) {
         if (request.is400()) {
             response.setCode(400);

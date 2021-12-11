@@ -2,16 +2,23 @@ package cs601.sideProject;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-
+import java.io.FileNotFoundException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+/**
+ *
+ */
 public class CreateItemHandler implements Handler{
 
+    /**
+     *
+     * @param request
+     * @param response
+     */
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
         String sessionCookie = null;
@@ -35,7 +42,7 @@ public class CreateItemHandler implements Handler{
         int qty = new Gson().fromJson(request.getContent(), JsonObject.class).get("quantity").getAsInt();
         String comment = new Gson().fromJson(request.getContent(),JsonObject.class).get("comment").getAsString();
 
-        try(Connection con = getConnection();){
+        try(Connection con = HomeHandler.getConnection();){
 
             PreparedStatement query = con.prepareStatement("select categoryID from category where categoryName = ?");
             query.setString(1,category);
@@ -59,7 +66,7 @@ public class CreateItemHandler implements Handler{
             posted2.setString(6, comment);
             posted2.setInt(7,userId);
             posted2.executeUpdate();
-        } catch (SQLException throwables) {
+        } catch (SQLException | FileNotFoundException throwables) {
             throwables.printStackTrace();
         }
         JsonObject json = new JsonObject();
@@ -67,23 +74,6 @@ public class CreateItemHandler implements Handler{
         response.response(json.toString());
     }
 
-    public static Connection getConnection(){
-        try{
-            String driver = "com.mysql.jdbc.Driver";
-            String url = "jdbc:mysql://localhost:3306/cs601sideProject";
-            String username = "root";
-            String password = "2281997163";
-            Class.forName(driver);
 
-            Connection con = DriverManager.getConnection(url,username,password);
-            return con;
-
-        } catch (ClassNotFoundException e) {
-            System.out.println(e);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-        return null;
-    }
 
 }
