@@ -5,17 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * ServerResponse class. set up the content that we want to respond to user based on user request
  */
 public class ServerResponse {
     private int code;
     private PrintWriter output;
     private Map<String, String> headers;
-
-    /**
-     *
-     * @param output
-     */
     public ServerResponse(PrintWriter output) {
         this.code = 200;
         this.output = output;
@@ -24,17 +19,18 @@ public class ServerResponse {
     }
 
     /**
+     * Set response code
      *
-     * @param code
+     * @param code The response code that we want to respond to user
      */
     public void setCode(int code) {
         this.code = code;
     }
 
     /**
-     *
-     * @param name
-     * @param content
+     * add header method
+     * @param name header's name
+     * @param content header's content
      */
     public void addHeader(String name, String content) {
 
@@ -42,8 +38,9 @@ public class ServerResponse {
     }
 
     /**
+     * Response for user request
      *
-     * @param content
+     * @param content the content that we want to respond to user based on user request
      */
     public void response(String content) {
 

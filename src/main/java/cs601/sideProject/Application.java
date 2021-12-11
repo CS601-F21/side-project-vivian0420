@@ -2,8 +2,8 @@ package cs601.sideProject;
 
 public class Application {
     /**
-     *
-     * @param args
+     * Create Httpserver, set mapping and start the server.
+     * @param args comment line arguments.This project doesn't need the arguments from comment line.
      */
     public static void main(String[] args) {
         int port = 1024;

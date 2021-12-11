@@ -8,14 +8,14 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 /**
- *
+ * LoginHandler. Handle users' login behavior
  */
 public class LoginHandler implements Handler{
 
     /**
-     *
-     * @param request
-     * @param response
+     * Display login page to users. When user login, create user-session for the current user and redirect the user to the home page.
+     * @param request  The HTTP request that the server receives
+     * @param response The HTTP response that the server sends
      */
     @Override
     public void handle(ServerRequest request, ServerResponse response) {

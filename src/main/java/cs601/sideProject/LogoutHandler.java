@@ -6,14 +6,14 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- *
+ * LogoutHandler. Handle users' log out behavior
  */
 public class LogoutHandler implements Handler{
 
     /**
-     *
-     * @param request
-     * @param response
+     * When users click log out button, set the current user's active as 0 and redirect the user to the login page.
+     * @param request  The HTTP request that the server receives
+     * @param response The HTTP response that the server sends
      */
     @Override
     public void handle(ServerRequest request, ServerResponse response) {

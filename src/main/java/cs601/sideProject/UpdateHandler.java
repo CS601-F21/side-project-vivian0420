@@ -11,14 +11,14 @@ import java.sql.SQLException;
 import java.util.Map;
 
 /**
- *
+ * UpdateHandler. Allow users to update the items' information
  */
 public class UpdateHandler implements Handler {
 
     /**
-     *
-     * @param request
-     * @param response
+     * Allow users to check the information of items and update/delete items.
+     * @param request  The HTTP request that the server receives
+     * @param response The HTTP response that the server sends
      */
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
@@ -45,11 +45,16 @@ public class UpdateHandler implements Handler {
                 userName = resultSet.getString("username");
                 userID = resultSet.getInt("user_id");
             }
+
+            //display items' information
             if (request.getRequestMethod().equals("GET")) {
                 int id = Integer.parseInt(request.getQueryParam().get("itemID"));
                 String content = getContent(userName, id, userID, conn);
                 response.response(content);
-            } else if (request.getRequestMethod().equals("POST")) {
+            }
+
+            //allow users to update the information of items
+            else if (request.getRequestMethod().equals("POST")) {
                 if (request.getFormData().get("formAction").equals("UPDATE")) {
                     String[] strings = new String[0];
                     try {
@@ -83,7 +88,10 @@ public class UpdateHandler implements Handler {
                     response.setCode(302);
                     response.addHeader("location", "/home");
                     response.response("<html>302 removed</html>");
-                } else if (request.getFormData().get("formAction").equals("DELETE")) {
+                }
+
+                //Allow users to delete items
+                else if (request.getFormData().get("formAction").equals("DELETE")) {
                     int itemID = Integer.parseInt(request.getFormData().get("itemID"));
                     PreparedStatement delete = conn.prepareStatement("delete from Item where itemID = ?");
                     delete.setInt(1, itemID);
@@ -103,13 +111,13 @@ public class UpdateHandler implements Handler {
     }
 
     /**
-     *
-     * @param userName
-     * @param itemId
-     * @param userID
-     * @param conn
-     * @return
-     * @throws SQLException
+     * display items' information
+     * @param userName the current user's userName
+     * @param itemId the current item's id
+     * @param userID the user id of current user
+     * @param conn connection
+     * @return the content that display the information of t current item and reminder
+     * @throws SQLException exception when it has problems to connect to MySQL
      */
     private String getContent(String userName, int itemId, int userID, Connection conn) throws SQLException {
         final PreparedStatement queryItem = conn.prepareStatement("SELECT i.itemName, i.itemID, c.categoryName, c.categoryID, i.brand, i.price, i.quantity, i.description FROM Item i, Category c WHERE c.categoryID = i.categoryID AND i.itemID=?");
@@ -154,11 +162,11 @@ public class UpdateHandler implements Handler {
     }
 
     /**
-     *
-     * @param categoryId
-     * @param con
-     * @return
-     * @throws SQLException
+     * Sorting form html
+     * @param categoryId items' category id
+     * @param con connection
+     * @return the html of sorting form
+     * @throws SQLException exception when it has problems to connect to MySQL
      */
     public String select(int categoryId, Connection con) throws SQLException {
         final PreparedStatement query = con.prepareStatement("SELECT categoryName, categoryID FROM Category");

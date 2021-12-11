@@ -8,14 +8,15 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
- *
+ * SignUpHandler. Hnadle users' sign up behavior
  */
 public class SignUpHandler implements Handler{
 
     /**
-     *
-     * @param request
-     * @param response
+     * Display sign up page to users. When users sign up, check is the passwords are matching. If is, redirect the suer to
+     * the login page. Otherwise, display error alert and allow users to re-enter.
+     * @param request  The HTTP request that the server receives
+     * @param response The HTTP response that the server sends
      */
     @Override
     public void handle(ServerRequest request, ServerResponse response) {

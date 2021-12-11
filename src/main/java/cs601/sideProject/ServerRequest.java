@@ -20,10 +20,10 @@ public class ServerRequest {
 
 
     /**
-     *
-     * @param requestLine
-     * @param headers
-     * @param content
+     * Constructor. Parse request line
+     * @param requestLine HTTP request line, for example: GET /find HTTP/1.1
+     * @param headers HTTP headers
+     * @param content HTTP post content
      */
     public ServerRequest(String requestLine, Map<String, String> headers, String content) {
         this.requestLine = requestLine;
@@ -58,32 +58,32 @@ public class ServerRequest {
     }
 
     /**
-     *
-     * @return
+     * check if a request is bad request or not.
+     * @return return true if the request line is bad request,and vice versa
      */
     public boolean is400() {
         return this.requestMethod == null || this.path == null || this.version == null;
     }
 
     /**
-     *
-     * @return
+     * check if a request method is allowed or not.
+     * @return return true if the request method is not allowed,and vice versa
      */
     public boolean is405() {
         return !this.requestMethod.equals("GET") && !this.requestMethod.equals("POST");
     }
 
     /**
-     *
-     * @return
+     * getter method
+     * @return post content
      */
     public String getContent() {
         return this.content;
     }
 
     /**
-     *
-     * @return
+     * getter method
+     * @return the form data
      */
     public Map<String, String> getFormData() {
         Map<String, String> form = new HashMap<>();
@@ -104,32 +104,32 @@ public class ServerRequest {
     }
 
     /**
-     *
-     * @return
+     * getter method
+     * @return request path
      */
     public String getPath() {
         return this.path;
     }
 
     /**
-     *
-     * @return
+     * getter method
+     * @return request method
      */
     public String getRequestMethod() {
         return this.requestMethod;
     }
 
     /**
-     *
-     * @return
+     * getter method
+     * @return headers
      */
     public Map<String, String> getHeaders(){
         return this.headers;
     }
 
     /**
-     *
-     * @return
+     * getter method
+     * @return query parameters
      */
     public Map<String, String> getQueryParam() {
         return this.queryParam;

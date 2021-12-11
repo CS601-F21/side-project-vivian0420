@@ -10,19 +10,20 @@ import java.sql.SQLException;
 import java.util.Map;
 
 /**
- *
+ * CreateItemHandler. Allow users to create new items and store the information of items into database.
  */
 public class CreateItemHandler implements Handler{
 
     /**
-     *
-     * @param request
-     * @param response
+     * Read data from users' input and store the information of items into database
+     * @param request the request that the server received
+     * @param response the response that server sent out
      */
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
         String sessionCookie = null;
         Map<String, String> headers = request.getHeaders();
+        //if the current user haven't login, force the user to the login page.
         if (!headers.containsKey("cookie")  || !headers.get("cookie").contains("session=")) {
             response.setCode(302);
             response.addHeader("location", "/login");
@@ -35,6 +36,7 @@ public class CreateItemHandler implements Handler{
                 }
             }
         }
+        //Read the data from the create new item form.
         String itenName = new Gson().fromJson(request.getContent(),JsonObject.class).get("itemname").getAsString();
         String brand = new Gson().fromJson(request.getContent(),JsonObject.class).get("brand").getAsString();
         String category = new Gson().fromJson(request.getContent(),JsonObject.class).get("category").getAsString();
@@ -42,6 +44,7 @@ public class CreateItemHandler implements Handler{
         int qty = new Gson().fromJson(request.getContent(), JsonObject.class).get("quantity").getAsInt();
         String comment = new Gson().fromJson(request.getContent(),JsonObject.class).get("comment").getAsString();
 
+        //Connect MySQL database
         try(Connection con = HomeHandler.getConnection();){
 
             PreparedStatement query = con.prepareStatement("select categoryID from category where categoryName = ?");
@@ -73,7 +76,4 @@ public class CreateItemHandler implements Handler{
         json.addProperty("test", "success");
         response.response(json.toString());
     }
-
-
-
 }

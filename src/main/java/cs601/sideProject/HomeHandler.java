@@ -12,18 +12,20 @@ import java.sql.SQLException;
 import java.util.Map;
 
 /**
- *
+ * HomeHandler. Handle display current inventory, display reminder, sorting, searching,etc.
  */
 public class HomeHandler implements Handler {
 
     /**
-     *
-     * @param request
-     * @param response
+     * Handle display current inventory, display reminder, sorting, searching,etc.
+     * @param request the request that the server received
+     * @param response the response that server sent out
      */
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
         Map<String, String> headers = request.getHeaders();
+
+        //If the current user haven't login, force the user to the login page.
         if (!headers.containsKey("cookie")  || !headers.get("cookie").contains("session=")) {
             String content = new LoginPageHTML().getLoginPageHTML("Login",getContent());
             response.response(content);
@@ -40,12 +42,16 @@ public class HomeHandler implements Handler {
                     final PreparedStatement query = conn.prepareStatement("select u.username, s.user_id from User_sessions s, User u where s.user_id = u.userId and s.session=? and s.active=1");
                     query.setString(1, sessionCookie);
                     ResultSet resultSet = query.executeQuery();
+                    //If the user has already log out(active=0), force the user to the login page.
                     if(!resultSet.next()) {
                         response.addHeader("location", "/login");
                         response.setCode(302);
                         response.response("<html>302 Found</html>");
                         return;
                     }
+
+                    //Read sorting keyword from the request that the server received, connect to MuSQL database and do
+                    // the corresponding query.Then display the query result.
                     String sort = request.getQueryParam().get("sort");
                     if(sort == null) {
                         sort = "i.itemID";
@@ -96,6 +102,8 @@ public class HomeHandler implements Handler {
                     throwables.printStackTrace();
                 }
             }
+
+            //display search results
             else if(request.getRequestMethod().equals("POST")){
                 try (Connection conn = getConnection()) {
                     final PreparedStatement query = conn.prepareStatement("select u.username, s.user_id from User_sessions s, User u where s.user_id = u.userId and s.session=?");
@@ -157,11 +165,12 @@ public class HomeHandler implements Handler {
     }
 
     /**
-     *
-     * @param conn
-     * @param userId
-     * @return
-     * @throws SQLException
+     * It an item's quantity is less or equal to 0, or it hasn't been modified for more than 30 days, display this
+     * item to the user
+     * @param conn connection
+     * @param userId current user id
+     * @return the content of reminder
+     * @throws SQLException exception when it has problems to connect to MySQL
      */
     private String getReminder(Connection conn, int userId) throws SQLException {
         String reminder = "";
@@ -186,9 +195,9 @@ public class HomeHandler implements Handler {
     }
 
     /**
-     *
-     * @return
-     * @throws FileNotFoundException
+     * Read MySQL information from config and connect to MySQL.
+     * @return the connection that connection this application to MySQL
+     * @throws FileNotFoundException exception of file not found
      */
     public static Connection getConnection() throws FileNotFoundException {
         Gson gson = new Gson();
@@ -212,8 +221,8 @@ public class HomeHandler implements Handler {
     }
 
     /**
-     *
-     * @return
+     * content of login form
+     * @return html for login form
      */
     public static String getContent() {
         String html = "<form action='/login' method='post' accept-charset='utf-8'>";
