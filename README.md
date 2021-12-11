@@ -1,55 +1,50 @@
-Side Project
-============
 
-### Due - Thursday, December 16, 2021 - 5pm
+# Inventory management
 
-For this project, you will implement a side project of your choosing.
-
-To motivate this project, read the following blog post:
-
-[Understanding Why Side Projects Are Looked At So Highly in Tech](https://www.linkedin.com/pulse/understanding-why-side-projects-looked-so-highly-tech-ming-chow/)
-
-It is very likely that you will be asked about your side projects when you interview for internships or full-time software development positions. It is not always easy to have time for a side project during your studies, but side projects are very important to your development as a software developer. As a result, in this class you will be required to have a side project! 
-
-Use this as an opportunity to explore something you are excited about! 
-
-## Requirements
-
-1. The project should represent roughly 50 hours of work. It is advised that you maintain a work log so that you can demonstrate how much time you spent on various elements of the project. It is also advised that you speak with the professor during office hour to propose your idea and verify that it is appropriately scoped.
-2. The project may *extend* another project from this or another class, but no portion of the assignment that you wish to have graded as Side Project may be submitted as part of another assignment for this or another class.
-3. You *may* choose to work in a programming language other than Java. You may also choose to use any set of libraries and/or frameworks available to you. Keep in mind, however, that your grade will be based on the level of difficulty of the project. Just completing some tutorials to learn a new toolset will not be sufficient (even if it took you 50 hours!).
-4. You must submit your entire code base, a README with instructions for executing your program, and a README that explains the goal of the project, the design of the system, and any implementation details. At the time of submission, you should have a well-documented github repository that you would be proud to send to a potential employer!
-
-## Suggestions
-
-A search for [programming side projects](https://www.google.com/search?q=programming+side+projects&oq=programming+side+projects&aqs=chrome..69i57.3250j0j7&sourceid=chrome&ie=UTF-8) yields lots results with suggestions for side projects and how to choose side projects.
-
-You may choose to extend a previous project to add functionality you think is missing.
-
-You may choose to use the opportunity to learn a new language or toolset, for example build and Android application or rewrite a project using Go.
-
-You may choose to implement an application that would help make your life easier. A previous student implemented a web-based Todo list application and used it everyday to keep track of her upcoming tasks! One of my lab mates from graduate school built an online photo library and used it every day to post a photo of the sky over Santa Barbara. 
-
-Use your creativity! This is a test of not only your coding skills but your ability to define a problem on your own. Of course, I'm here to help! You may always come to office hour to discuss your ideas.
-
-## Submission
-
-1. Use the following link to create your private github repository for this assignment: [Side Project](https://classroom.github.com/a/rMpWJJ-_)
-2. For full credit, make sure to follow all [Style Guidelines](https://github.com/CS601-F21/notes/blob/main/admin/style.md). Points will be deducted for each violation.
-3. Your program must be demonstrated to the professor or a TA by **Thursday, December 16, 2021 - 5pm**. Further instructions for making an interactive grading appointment for this project will be made available at a later date.
-4. All code *and thorough documentation* must be submitted to your github repository by **Thursday, December 16, 2021 - 5pm**.
-
-## Grading Rubric
-
-| Points | Criterion |
-| ------ | -------- |  
-| 60 | **Functionality** - Program behaves as expected during demonstration. |  
-| 15 | **Design** - Program demonstrates appropriate level of difficulty. |  
-| 15 | **Design** - Solution is well designed and uses appropriate class and method decomposition. | 
-| 10 | **Design** - Meets all style guidelines. |  
+For this project, I implemented a web-based application that manages inventory. It has some basic functionalities like user-login, user-log out and user-sign up. It also supports users to build inventory(add new item), query in inventory(search), delete item, update item, and so on. Beside these functionalities, it contains a table to display the information of each item in the home page. Users can sort this table by different attributes, like category, inventory and date updated.Last but not least, it will display the information of some items that have low stock or haven't been updated for more than 30 days so that users are able to take measures to those items.
 
 
-## Academic Dishonesty
 
-Any work you submit is expected to be your own original work. If you use any web resources in developing your code you are strongly advised to cite those resources. The only exception to this rule is code that is posted on the class website. The URL of the resource you used in a comment in your code is fine. If I google even a single line of uncited code and find it on the internet you may get a 0 on the assignment or an F in the class. You may also get a 0 on the assignment or an F in the class if your solution is at all similar to that of any other student.
+
+
+## Technologies
+
+JAVA, MySQL, HTML, CSS, JavaScript
+
+
+
+
+## Process
+
+- **Step1** Set up all the tables that we need in this project in MySQL database
+- **Step2** Built the web server by using Java and Socket
+- **Step3** Implement back-end including database operations
+- **Step4** Create front-end pages by using HTML, CSS and JavaScript
+
+
+## Features
+Feature         | Description |
+|:-------------:| :-----|
+| Login, logout |Allow a user to login and signout.|
+| Sign up | Allow a user to create an account. | 
+| Search | Users are able to do partial search for inventory by item's name, category and brand. |
+| View item | Click the name of an item and display details for this specific item. |
+| Build inventory| Allow the user to create a new inventory by entering all appropriate detail. |
+| Update item | Allow the user to update information for an item. |
+| Delete item | Allow the user to delete an item. |
+| Sort inventory | Allow the user to sort the inventory list by quantity, category and date updated. |
+| Reminder | Display items with low-stock or haven't been updated for more than 30 days to the user.|
+
+## Acknowledgements
+
+- [MySQL](https://www.tutorialspoint.com/mysql/index.htm)
+- [CSS](https://www.w3schools.com/css/)
+- [JavaScript](https://www.w3schools.com/js/default.asp)
+- [HTML](https://www.w3schools.com/html/default.asp)
+
+
+## Screenshots
+Login page:![Login page](https://user-images.githubusercontent.com/86545567/145692287-348d6780-523c-4f97-a1d3-3c11cd9f7c71.png)
+
+Home page: ![Home page](https://user-images.githubusercontent.com/86545567/145692404-2d5db34f-f044-4186-9117-3b605b799a71.png)
 
