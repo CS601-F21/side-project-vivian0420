@@ -44,7 +44,11 @@ Feature         | Description |
 
 
 ## Screenshots
-Login page:![Login page](https://user-images.githubusercontent.com/86545567/145692287-348d6780-523c-4f97-a1d3-3c11cd9f7c71.png)
+Login page:
 
-Home page: ![Home page](https://user-images.githubusercontent.com/86545567/145692404-2d5db34f-f044-4186-9117-3b605b799a71.png)
+![Login page](https://user-images.githubusercontent.com/86545567/145692287-348d6780-523c-4f97-a1d3-3c11cd9f7c71.png)
+
+Home page: 
+
+![Home page](https://user-images.githubusercontent.com/86545567/145692404-2d5db34f-f044-4186-9117-3b605b799a71.png)
 
