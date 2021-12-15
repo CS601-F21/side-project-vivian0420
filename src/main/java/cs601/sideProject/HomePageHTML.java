@@ -135,15 +135,16 @@ public class HomePageHTML {
                              }
                              
                              .column.side {
-                               width: 25%%;
+                               width: 20%%;
                                border: 2px solid grey;
                                margin-top: 10px;
                                margin-bottom: 10px;
                                height: 400px;
+                               overflow: scroll;
                              }
                                          
                              .column.middle {
-                               width: 45%%;
+                               width: 55%%;
                                border: 2px solid grey;
                                margin-top: 10px;
                                margin-bottom: 10px;
@@ -299,7 +300,7 @@ public class HomePageHTML {
                                   
                           <div class="row">
                             <div class="column side">
-                              <p class="welcome"> *Welcome back* </p>
+                              <p class="welcome"> *Welcome* </p>
                               <p class="name"> %s </p> 
                               <form action="/logout" method="POST" style='margin-right: 160px;' accept-charset="utf-8">
                                  <button id='logout' type='submit'>Logout</button>

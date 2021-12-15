@@ -17,6 +17,11 @@ public class LogoutHandler implements Handler{
      */
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
+        if(request.getRequestMethod().equals("GET")){
+            response.setCode(405);
+            response.response("Method not allowed.");
+            return;
+        }
         String session = request.getHeaders().get("cookie");
         String cookieString = session.split(";")[1];
         String cookie = cookieString.split("=")[1];

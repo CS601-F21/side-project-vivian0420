@@ -5,7 +5,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * SignUpHandler. Hnadle users' sign up behavior
@@ -21,7 +23,33 @@ public class SignUpHandler implements Handler{
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
         if(request.getRequestMethod().equals("GET")) {
-            response.response(new LoginPageHTML().getLoginPageHTML("Sign Up", getContent(request)));
+            Map<String, String> headers = request.getHeaders();
+            if (!headers.containsKey("cookie") || !headers.get("cookie").contains("session=")) {
+                response.response(new LoginPageHTML().getLoginPageHTML("Sign Up", getContent(request)));
+            }
+            else{
+                String cookies = headers.get("cookie");
+                String sessionCookie = null;
+                for (String cookie : cookies.split(";")) {
+                    if (cookie.trim().startsWith("session=")) {
+                        sessionCookie = cookie.split("=")[1];
+                    }
+                }
+                try (Connection conn = HomeHandler.getConnection()) {
+                    final PreparedStatement query = conn.prepareStatement("SELECT user_id FROM User_sessions WHERE session=? AND active=1");
+                    query.setString(1, sessionCookie);
+                    ResultSet result = query.executeQuery();
+                    if (result.next()) {
+                        response.setCode(302);
+                        response.addHeader("location", "/home");
+                        response.response("<html>302 Found</html>");
+                    }else {
+                        response.response(new LoginPageHTML().getLoginPageHTML("Sign Up", getContent(request)));
+                    }
+                } catch (SQLException | FileNotFoundException throwables) {
+                    throwables.printStackTrace();
+                }
+                }
         }
         else if(request.getRequestMethod().equals("POST")) {
             String user = request.getContent().split("&")[0];

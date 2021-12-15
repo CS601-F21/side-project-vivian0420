@@ -21,6 +21,11 @@ public class CreateItemHandler implements Handler{
      */
     @Override
     public void handle(ServerRequest request, ServerResponse response) {
+        if(request.getRequestMethod().equals("GET")) {
+            response.setCode(405);
+            response.response("Method not allowed.");
+            return;
+        }
         String sessionCookie = null;
         Map<String, String> headers = request.getHeaders();
         //if the current user haven't login, force the user to the login page.
@@ -28,6 +33,7 @@ public class CreateItemHandler implements Handler{
             response.setCode(302);
             response.addHeader("location", "/login");
             response.response("<html>302 found</html>");
+            return;
         } else {
             String cookies = headers.get("cookie");
             for (String cookie : cookies.split(";")) {
