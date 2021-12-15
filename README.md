@@ -46,9 +46,9 @@ Feature         | Description |
 ## Screenshots
 Login page:
 
-![Login page](https://user-images.githubusercontent.com/86545567/145692287-348d6780-523c-4f97-a1d3-3c11cd9f7c71.png)
+![Login page](https://user-images.githubusercontent.com/86545567/146140658-02deaf71-01a9-4167-acf4-2d3c7ede764e.png)
 
 Home page: 
 
-![Home page](https://user-images.githubusercontent.com/86545567/145692404-2d5db34f-f044-4186-9117-3b605b799a71.png)
+![Home page](https://user-images.githubusercontent.com/86545567/146140496-875a7089-395d-4c63-9073-05ff135533a3.png)
 
