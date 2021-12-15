@@ -7,14 +7,14 @@ public class LoginPageHTML {
                        <html xmlns="http://www.w3.org/1999/xhtml">
                          <html>
                          <head>
-                              <title>Add New Item</title>
+                              <title>Inventory Management</title>
                               <meta charset="utf-8">
                               <meta name="viewport" content="width=device-width, initial-scale=1">
                               <style>
                                   body {
                                     margin: 20;
                                   }
-                                         
+                                       
                                   * {
                                     box-sizing: border-box;
                                   }
